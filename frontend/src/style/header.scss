@@ -1,0 +1,26 @@
+.menu {
+	margin: 0;
+	padding: 20px;
+	background-color: chocolate;
+	border-radius: 10px;
+
+	.header-list {
+		display: flex;
+		justify-content: space-evenly;
+		list-style: none;
+
+		.header-item {
+			font-size: large;
+			font-weight: bold;
+
+			a {
+				text-decoration: none;
+				color: blueviolet;
+			}
+
+			a:hover {
+				color: yellow;
+			}
+		}
+	}
+}
