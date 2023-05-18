@@ -1,3 +1,5 @@
+import "../style/settings.scss"
+
 export default function Settings({ hidden, wordLength, handleWordLength, uniqueWord, handleUnique })
 {
     if (hidden)
@@ -5,9 +7,9 @@ export default function Settings({ hidden, wordLength, handleWordLength, uniqueW
 
     return (
         <div className="settings">
-            <h3 className="settings-header">Spel Alternativ</h3>
+            <h3>ALTERNATIV</h3>
 
-            <p>Ordets längd {wordLength}</p>
+            <label htmlFor="wordLength" >ORD LÄNGD: <span className="word-length">{wordLength}</span></label>
 
             <input
                 type="range"
@@ -21,8 +23,7 @@ export default function Settings({ hidden, wordLength, handleWordLength, uniqueW
                 }}
             />
 
-            <p>Endast unika bokstäver i ordet</p>
-
+            <label htmlFor="checkBoxUniqueWord">ENDAST UNIKA BOKSTÄVER I ORDET</label>
             <input
                 type="checkbox"
                 id="checkBoxUniqueWord"
@@ -32,6 +33,7 @@ export default function Settings({ hidden, wordLength, handleWordLength, uniqueW
                     handleUnique(!uniqueWord);
                 }}
             />
+
         </div>
     );
 }

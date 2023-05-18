@@ -1,0 +1,27 @@
+.settings {
+	display: flex;
+	flex-direction: column;
+
+	background-color: greenyellow;
+	width: fit-content;
+	margin: auto;
+	margin-top: 5%;
+	padding: 15px;
+	border: 4px solid rosybrown;
+	border-radius: 10px;
+	box-shadow: 5px 4px;
+
+	h3 {
+		margin: 5px;
+		text-align: center;
+	}
+
+	label {
+		margin-top: 5px;
+		font-weight: 100;
+
+		.word-length {
+			font-weight: 700;
+		}
+	}
+}
