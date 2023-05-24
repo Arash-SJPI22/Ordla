@@ -21,6 +21,8 @@
 		}
 
 		.settings-btn {
+			padding: 3px 1.5px;
+			text-align: center;
 			background-color: transparent;
 			border-radius: 10px;
 			height: 25px;
@@ -32,15 +34,40 @@
 	}
 
 	.game {
-		display: grid;
-		grid-template-columns: 1fr;
-		grid-template-rows: repeat(5, 1fr);
-
 		.guessInput {
 			input {
 				margin-top: 15px;
 				border-radius: 5px;
 				padding: 4px;
+			}
+		}
+
+		.guessResult {
+			.guessResult-list {
+				padding: 0;
+				list-style: none;
+				display: flex;
+				flex-direction: row;
+				justify-content: space-between;
+
+				ul {
+					margin: 0px 5px;
+					padding: 10px;
+					border: 2px solid palevioletred;
+					box-shadow: 1px 1px 1px 1px darkgray;
+					border-radius: 10px;
+				}
+
+				li {
+					box-shadow: 1px 1px;
+					text-align: center;
+					font-weight: 600;
+					background-color: teal;
+					margin: 5px 0px;
+					padding: 1px 4px;
+					display: flex;
+					flex-direction: column;
+				}
 			}
 		}
 	}

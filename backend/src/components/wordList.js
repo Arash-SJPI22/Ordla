@@ -5,10 +5,10 @@ export default function wordList(length, unique)
 	const list = [];
 
 	// Removes all words that dosen't match the length
-	//removeNonMatchingLength(list, length);
+	// removeNonMatchingLength(list, length);
 	// Add all words from the JSON file with the right length to list
 	addRightLengthWords(list, length);
-	
+
 	// Removes all the unique words from the list
 	if (unique) removeNonUnique(list);
 

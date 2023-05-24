@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 import "./style/App.scss";
 import Header from "./components/header";
 import GameBox from "./components/gamebox";

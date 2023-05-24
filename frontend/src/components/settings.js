@@ -1,7 +1,10 @@
+import { useState } from "react";
 import "../style/settings.scss"
 
 export default function Settings({ hidden, wordLength, handleWordLength, uniqueWord, handleUnique })
 {
+    const [uniqueBoxDisabled, setUniqueBoxDisabled] = useState(false);
+
     if (hidden)
         return null;
 
@@ -20,6 +23,12 @@ export default function Settings({ hidden, wordLength, handleWordLength, uniqueW
                 onChange={(rangeEv) =>
                 {
                     handleWordLength(rangeEv.target.value);
+                    if(rangeEv.target.value > 15) {
+                        handleUnique(false);
+                        setUniqueBoxDisabled(true);
+                    } else {
+                        setUniqueBoxDisabled(false);
+                    }
                 }}
             />
 
@@ -32,6 +41,8 @@ export default function Settings({ hidden, wordLength, handleWordLength, uniqueW
                 {
                     handleUnique(!uniqueWord);
                 }}
+                checked={uniqueWord}
+                disabled={uniqueBoxDisabled}
             />
 
         </div>
