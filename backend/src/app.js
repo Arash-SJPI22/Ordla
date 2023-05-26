@@ -2,17 +2,22 @@ import mongoose from "mongoose";
 import express from "express";
 import wordList from "./components/wordList.js";
 import checkGuess from "./components/checkGuess.js";
-import { HighScoreSchema } from "./models/HigScore.js";
+import checkWinner from "./components/checkWinner.js";
+import { HighScoreSchema } from "./models/HighScore.js";
+import { newgame, addguess, cleanDB } from "./utils/dbFunctions.js";
 
 const conn = await mongoose.connect('mongodb://127.0.0.1:27017/ordla');
 
-const HigScore = mongoose.model("HighScore", HighScoreSchema);
+const HighScore = mongoose.model("HighScore", HighScoreSchema);
 
 const app = express();
 app.use(express.json());
 
 app.post('/newgame', async (req, res) =>
 {
+
+    cleanDB();
+
     let wordLength = req.body.wordLength;
     let uniqueWord = req.body.uniqueWord;
     let playerGuess = req.body.inputGuess;
@@ -32,31 +37,20 @@ app.post('/newgame', async (req, res) =>
 
         const answer = wordList(wordLength, uniqueWord);
         const guessResult = checkGuess(playerGuess, answer)
+        const winner = checkWinner(guessResult);
 
         if (answer)
         {
-            const newgame = new HigScore(
-                {
-                    answer: answer,
-                    guesses: [{ word: guessResult }],
-                    endTime: null,
-                    uniqueLetters: uniqueWord,
-                    playerName: null,
-                })
-
-            const game = newgame._id;
-            const gameGuesses = newgame.guesses;
-
-            await newgame.save();
+            const game = await newgame(answer, guessResult, uniqueWord, winner);
 
             res.status(200).json(
                 {
-                    gameId: game,
-                    guessList: gameGuesses,
+                    gameId: game.gameID,
+                    guessList: game.gameGuesses,
+                    endTime: game.endTime,
                 });
         } else
         {
-
             res.status(400).json(
                 {
                     data: "Bad criteria"
@@ -64,7 +58,6 @@ app.post('/newgame', async (req, res) =>
         }
     } else
     {
-
         res.status(400).json(
             {
                 data: "Faulty input",
@@ -76,35 +69,71 @@ app.post('/newgame', async (req, res) =>
 
 app.post('/guess', async (req, res) =>
 {
+    cleanDB();
+
     const gameID = req.body.gameID;
     const playerGuess = req.body.inputGuess;
 
+    let post = await HighScore.findById(gameID);
 
-    let post = await HigScore.findById(gameID);
-    const answer = post.answer
-
-    const guessResult = checkGuess(playerGuess, answer)
-
-    console.log("Guess Result: ", guessResult);
-
-    const result = await HigScore.updateOne(
-        { "_id": gameID },
-        { $push: { guesses: { word: guessResult } } }
-    )
-
-    post = await HigScore.findById(gameID);
-    
-    if (result.acknowledged)
+    if (!post)
     {
-        res.status(202).json({
-            data: true,
-            guessList: post.guesses
-        })
-    } else
-    {
-        res.status(406).json({
+        res.status(410).json({
             data: false,
+            error: "Game expired or wrong gameID!",
+        });
+    }
+    else if (post.guesses.length === 5)
+    {
+        res.status(403).json({
+            data: false,
+            error: "Game over!"
         })
+    }
+    else
+    {
+        const answer = post.answer;
+        const wordLength = post.guesses[0].word.length;
+        const endTime = post.endTime;
+
+        if (playerGuess.length === wordLength && !endTime)
+        {
+            const guessResult = checkGuess(playerGuess, answer)
+            const winner = checkWinner(guessResult);
+
+            const result = await addguess(gameID, guessResult, winner)
+
+            post = await HighScore.findById(gameID);
+
+            if (result.acknowledged)
+            {
+                res.status(202).json({
+                    data: true,
+                    guessList: post.guesses,
+                    endTime: post.endTime,
+                })
+            }
+            else
+            {
+                res.status(406).json({
+                    data: false,
+                })
+            }
+        }
+        else if (endTime) 
+        {
+            res.status(400).json({
+                data: false,
+                error: "Game is allready finished!"
+            })
+        }
+        else
+        {
+            res.status(400).json({
+                data: false,
+                error: "Guess dose not equal this game sessions word length!"
+            })
+        }
     }
 });
 

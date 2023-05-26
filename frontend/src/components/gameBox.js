@@ -39,6 +39,9 @@ export default function GameBox()
         if (data.data)
         {
             setGuesses(data.guessList);
+
+            /* if (data.endTime)
+                setEndTime(data.endTime) */
         }
     }
 
@@ -87,14 +90,19 @@ export default function GameBox()
                         <form action="submit" onSubmit={(ev) =>
                         {
                             ev.preventDefault();
-                            setSettingsBtnHidden(true);
-                            setSettingsHidden(true);
-                            setInputGuess('');
+                            if (inputGuess.length === wordLength)
+                            {
+                                setInputGuess('');
+                                if (!gameID)
+                                {
+                                    setSettingsBtnHidden(true);
+                                    setSettingsHidden(true);
+                                    newGame();
+                                }
 
-                            if (!gameID)
-                                newGame();
-                            else
-                                sendGuess();
+                                else
+                                    sendGuess();
+                            }
                         }}>
                             <input
                                 type="text"
