@@ -1,6 +1,6 @@
 import "./style/App.scss";
-import Header from "./components/header";
-import GameBox from "./components/gamebox";
+import Header from "./components/header.js";
+import GameBox from "./components/gameBox.js";
 
 export default function App()
 {

@@ -1,0 +1,40 @@
+.guessResult {
+	.guessResult-list {
+		padding: 0;
+		list-style: none;
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+
+		.guessResult-letters {
+			margin: 0px 5px;
+			padding: 10px;
+			border: 2px solid palevioletred;
+			box-shadow: 1px 1px 1px 1px darkgray;
+			border-radius: 10px;
+		}
+
+		li {
+			box-shadow: 1px 1px;
+			text-align: center;
+			font-weight: 600;
+			background-color: teal;
+			margin: 5px 0px;
+			padding: 1px 4px;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.correct {
+			background-color: lime;
+		}
+
+		.incorrect {
+			background-color: brown;
+		}
+
+		.misplaced {
+			background-color: darkgoldenrod;
+		}
+	}
+}
