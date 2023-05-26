@@ -6,6 +6,7 @@ import { HighScoreSchema } from "./models/HigScore.js";
 
 const conn = await mongoose.connect('mongodb://127.0.0.1:27017/ordla');
 
+const HigScore = mongoose.model("HighScore", HighScoreSchema);
 
 const app = express();
 app.use(express.json());
@@ -34,8 +35,6 @@ app.post('/newgame', async (req, res) =>
 
         if (answer)
         {
-            const HigScore = mongoose.model("HighScore", HighScoreSchema);
-
             const newgame = new HigScore(
                 {
                     answer: answer,
@@ -47,7 +46,7 @@ app.post('/newgame', async (req, res) =>
 
             const game = newgame._id;
             const gameGuesses = newgame.guesses;
-            
+
             await newgame.save();
 
             res.status(200).json(
@@ -75,9 +74,38 @@ app.post('/newgame', async (req, res) =>
 
 });
 
-app.post('/guess', (req, res) =>
+app.post('/guess', async (req, res) =>
 {
+    const gameID = req.body.gameID;
+    const playerGuess = req.body.inputGuess;
 
+
+    let post = await HigScore.findById(gameID);
+    const answer = post.answer
+
+    const guessResult = checkGuess(playerGuess, answer)
+
+    console.log("Guess Result: ", guessResult);
+
+    const result = await HigScore.updateOne(
+        { "_id": gameID },
+        { $push: { guesses: { word: guessResult } } }
+    )
+
+    post = await HigScore.findById(gameID);
+    
+    if (result.acknowledged)
+    {
+        res.status(202).json({
+            data: true,
+            guessList: post.guesses
+        })
+    } else
+    {
+        res.status(406).json({
+            data: false,
+        })
+    }
 });
 
 export default app;

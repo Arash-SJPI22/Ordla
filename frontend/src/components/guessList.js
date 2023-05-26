@@ -2,7 +2,6 @@ import '../style/guessresult.scss'
 
 export default function GuessList({ guesses }) 
 {
-    console.log(guesses);
     return (
         <ul className="guessResult-letters">
             {guesses.word.map((word, index) =>

@@ -35,6 +35,11 @@ export default function GameBox()
             body: JSON.stringify({ gameID, inputGuess }),
         })
         const data = await res.json();
+
+        if (data.data)
+        {
+            setGuesses(data.guessList);
+        }
     }
 
     async function newGame()
