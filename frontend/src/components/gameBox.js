@@ -2,17 +2,25 @@ import { useState } from "react";
 import "../style/gamebox.scss"
 import Settings from "./settings";
 import GuessResult from "./guessResult.js";
+import Modal from "./modal.js";
 
 export default function GameBox()
 {
+    const [modalHidden, setModalHidden] = useState(true);
+    const [modalInfo, setModalInfo] = useState({});
     const [settingsHidden, setSettingsHidden] = useState(true);
     const [settingsBtnHidden, setSettingsBtnHidden] = useState(false);
     const [wordLength, setWordLength] = useState(5);
-    const [uniqueWord, setUniqueWord] = useState(true);
+    const [uniqueWord, setUniqueWord] = useState(false);
     const [inputGuess, setInputGuess] = useState('');
     const [gameID, setGameID] = useState('');
     const [guesses, setGuesses] = useState();
 
+
+    function onClose(hiden)
+    {
+        setModalHidden(!modalHidden)
+    }
 
     function handleUnique(changeUnique)
     {
@@ -43,6 +51,11 @@ export default function GameBox()
             /* if (data.endTime)
                 setEndTime(data.endTime) */
         }
+        else 
+        {
+            setModalInfo({ title: "Error!", msg: data.error })
+            setModalHidden(false);
+        }
     }
 
     async function newGame()
@@ -63,6 +76,12 @@ export default function GameBox()
 
     return (
         <>
+            <Modal
+                hidden={modalHidden}
+                handleModal={onClose}
+                title={modalInfo.title}
+                msg={modalInfo.msg}
+            />
             <Settings
                 hidden={settingsHidden}
                 wordLength={wordLength}
@@ -73,7 +92,17 @@ export default function GameBox()
 
             <section className="game-box">
                 <div className="settings-box">
-
+                    <button
+                        className="newgame-btn"
+                        onClick={() =>
+                        {
+                            setSettingsBtnHidden(false);
+                            setGameID('');
+                            setGuesses('');
+                            setInputGuess('');
+                        }}
+                    >Nytt Spel
+                    </button>
                     <button
                         className="settings-btn"
                         onClick={() => setSettingsHidden(!settingsHidden)}
@@ -90,7 +119,9 @@ export default function GameBox()
                         <form action="submit" onSubmit={(ev) =>
                         {
                             ev.preventDefault();
-                            if (inputGuess.length === wordLength)
+                            console.log("wordLength: ", wordLength);
+                            console.log("inputGuess.length: ", inputGuess.length);
+                            if (inputGuess.length == wordLength)
                             {
                                 setInputGuess('');
                                 if (!gameID)
