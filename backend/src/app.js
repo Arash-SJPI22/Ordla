@@ -53,14 +53,14 @@ app.post('/newgame', async (req, res) =>
         {
             res.status(400).json(
                 {
-                    data: "Bad criteria"
+                    data: "Inget ord hittades, felaktiga inställningar för ord!"
                 });
         }
     } else
     {
         res.status(400).json(
             {
-                data: "Faulty input",
+                data: "Felaktig ord inställningar eller ord längd!",
             }
         );
     }
@@ -80,14 +80,14 @@ app.post('/guess', async (req, res) =>
     {
         res.status(410).json({
             data: false,
-            error: "Game expired or wrong gameID!",
+            error: "Fel spel ID eller så har din spel session gått ut!",
         });
     }
     else if (post.guesses.length === 5)
     {
         res.status(403).json({
             data: false,
-            error: "Game over!"
+            error: "Spelet är över!"
         })
     }
     else
@@ -124,14 +124,14 @@ app.post('/guess', async (req, res) =>
         {
             res.status(400).json({
                 data: false,
-                error: "Game is allready finished!"
+                error: "Spelet är redan avslutat!"
             })
         }
         else
         {
             res.status(400).json({
                 data: false,
-                error: "Guess dose not equal this game sessions word length!"
+                error: "Din gissning har fel längd!"
             })
         }
     }
