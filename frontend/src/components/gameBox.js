@@ -47,13 +47,19 @@ export default function GameBox()
         if (data.data)
         {
             setGuesses(data.guessList);
-
-            /* if (data.endTime)
-                setEndTime(data.endTime) */
+            if (data.endTime) 
+            {
+                setModalInfo({
+                    title: "Vinnare!",
+                    msg: "Du hittade rätt ord!",
+                    winner: true,
+                })
+                setModalHidden(false);
+            }
         }
         else 
         {
-            setModalInfo({ title: "Error!", msg: data.error })
+            setModalInfo({ title: data.title, msg: data.error })
             setModalHidden(false);
         }
     }
@@ -72,6 +78,42 @@ export default function GameBox()
         setGameID(data.gameId);
         setGuesses(data.guessList);
 
+        if (data.endTime) 
+        {
+            setModalInfo({
+                title: "Vinnare!",
+                msg: "Du hittade rätt ord!",
+                winner: true,
+            })
+            setModalHidden(false);
+        }
+    }
+
+    async function sendHighscore(playerName)
+    {
+        const res = await fetch('http://localhost:5080/highscore', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ gameID, playerName }),
+        });
+
+        const data = await res.json();
+
+        if (data.data) 
+        {
+            setModalInfo({
+                title: "Highscore!",
+                msg: "Ditt namn är förevigat bland de bästa!",
+            });
+            setModalHidden(false);
+        }
+        else 
+        {
+            setModalInfo({ title: data.title, msg: data.error })
+            setModalHidden(false);
+        }
     }
 
     return (
@@ -81,6 +123,8 @@ export default function GameBox()
                 handleModal={onClose}
                 title={modalInfo.title}
                 msg={modalInfo.msg}
+                winner={modalInfo.winner}
+                handleHighscore={sendHighscore}
             />
             <Settings
                 hidden={settingsHidden}
@@ -119,8 +163,6 @@ export default function GameBox()
                         <form action="submit" onSubmit={(ev) =>
                         {
                             ev.preventDefault();
-                            console.log("wordLength: ", wordLength);
-                            console.log("inputGuess.length: ", inputGuess.length);
                             if (inputGuess.length == wordLength)
                             {
                                 setInputGuess('');

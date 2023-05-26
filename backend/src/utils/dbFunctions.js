@@ -23,7 +23,7 @@ export async function newgame(answer, guessResult, uniqueWord, winner)
             uniqueLetters: uniqueWord,
             playerName: null,
         })
-    return { gameID: newG._id, gameGuesses: newG.guesses };
+    return { gameID: newG._id, gameGuesses: newG.guesses, endTime: newG.endTime };
 };
 
 export async function addguess(gameID, guessResult, winner)
@@ -57,6 +57,7 @@ export async function addWinner(gameID, playerName)
         { _id: gameID },
         { $set: { playerName: playerName } },
     )
+    return result;
 };
 
 export async function getHighScore()

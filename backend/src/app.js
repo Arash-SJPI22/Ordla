@@ -4,7 +4,7 @@ import wordList from "./components/wordList.js";
 import checkGuess from "./components/checkGuess.js";
 import checkWinner from "./components/checkWinner.js";
 import { HighScoreSchema } from "./models/HighScore.js";
-import { newgame, addguess, cleanDB } from "./utils/dbFunctions.js";
+import { newgame, addguess, cleanDB, addWinner, getHighScore } from "./utils/dbFunctions.js";
 
 const conn = await mongoose.connect('mongodb://127.0.0.1:27017/ordla');
 
@@ -53,14 +53,18 @@ app.post('/newgame', async (req, res) =>
         {
             res.status(400).json(
                 {
-                    data: "Inget ord hittades, felaktiga inställningar för ord!"
+                    data: false,
+                    title: "Error!",
+                    error: "Inget ord hittades, felaktiga inställningar för ord!"
                 });
         }
     } else
     {
         res.status(400).json(
             {
-                data: "Felaktig ord inställningar eller ord längd!",
+                data: false,
+                title: "Fel!",
+                error: "Felaktig ord inställningar eller ord längd!",
             }
         );
     }
@@ -80,6 +84,7 @@ app.post('/guess', async (req, res) =>
     {
         res.status(410).json({
             data: false,
+            title: "Fel!",
             error: "Fel spel ID eller så har din spel session gått ut!",
         });
     }
@@ -87,7 +92,8 @@ app.post('/guess', async (req, res) =>
     {
         res.status(403).json({
             data: false,
-            error: "Spelet är över!"
+            title: "Spel är över!",
+            error: `Rätt ord var: ${post.answer}`
         })
     }
     else
@@ -117,6 +123,8 @@ app.post('/guess', async (req, res) =>
             {
                 res.status(406).json({
                     data: false,
+                    title: "Error!",
+                    error: "Fel vid databasen!"
                 })
             }
         }
@@ -124,6 +132,7 @@ app.post('/guess', async (req, res) =>
         {
             res.status(400).json({
                 data: false,
+                title: "Fel!",
                 error: "Spelet är redan avslutat!"
             })
         }
@@ -131,9 +140,42 @@ app.post('/guess', async (req, res) =>
         {
             res.status(400).json({
                 data: false,
+                title: "Fel!",
                 error: "Din gissning har fel längd!"
             })
         }
+    }
+});
+
+app.post('/highscore', async (req, res) =>
+{
+    const gameID = req.body.gameID;
+    const playerName = req.body.playerName;
+
+    let post = await HighScore.findById(gameID);
+
+    if (!post)
+    {
+        res.status(400).json({
+            data: false,
+            title: "Fel!",
+            error: "Fel spel id, existerar inte!"
+        })
+    }
+    else if (post && post.playerName) 
+    {
+        res.status(400).json({
+            data: false,
+            title: "Fel!",
+            error: "Vinnaren har redan skrivit in sitt namn!"
+        })
+    }
+    else 
+    {
+        const result = await addWinner(gameID, playerName);
+        res.status(201).json({
+            data: true,
+        })
     }
 });
 
