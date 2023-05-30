@@ -47,6 +47,7 @@ export default function GameBox()
         if (data.data)
         {
             setGuesses(data.guessList);
+
             if (data.endTime) 
             {
                 setModalInfo({
@@ -59,6 +60,9 @@ export default function GameBox()
         }
         else 
         {
+            if (data.guessList)
+                setGuesses(data.guessList);
+
             setModalInfo({ title: data.title, msg: data.error })
             setModalHidden(false);
         }

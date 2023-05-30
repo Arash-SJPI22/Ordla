@@ -11,13 +11,14 @@ export default function Modal({ hidden, handleModal, title, msg, winner = false,
 
     return (
         <>
-            <div className="modalOverlay" onClick={handleModal} />
+            <div className="modalOverlay" onClick={winner ? null : handleModal} />
             <div className="modalContainer">
                 <h2> {title} </h2>
                 <p> {msg} </p>
                 <form action="submit" onSubmit={() =>
                 {
                     handleHighscore(playerName)
+                    setPlayerName('');
                     handleModal();
                 }}>
                     <input

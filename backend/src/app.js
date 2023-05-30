@@ -7,8 +7,8 @@ import { HighScoreSchema } from "./models/HighScore.js";
 import { newgame, addguess, cleanDB, addWinner, getHighScore } from "./utils/dbFunctions.js";
 
 const conn = await mongoose.connect('mongodb://127.0.0.1:27017/ordla');
-
 const HighScore = mongoose.model("HighScore", HighScoreSchema);
+const guessLimit = 5;
 
 const app = express();
 app.use(express.json());
@@ -49,7 +49,8 @@ app.post('/newgame', async (req, res) =>
                     guessList: game.gameGuesses,
                     endTime: game.endTime,
                 });
-        } else
+        }
+        else
         {
             res.status(400).json(
                 {
@@ -58,7 +59,8 @@ app.post('/newgame', async (req, res) =>
                     error: "Inget ord hittades, felaktiga inställningar för ord!"
                 });
         }
-    } else
+    }
+    else
     {
         res.status(400).json(
             {
@@ -73,12 +75,12 @@ app.post('/newgame', async (req, res) =>
 
 app.post('/guess', async (req, res) =>
 {
-    cleanDB();
-
     const gameID = req.body.gameID;
     const playerGuess = req.body.inputGuess;
 
     let post = await HighScore.findById(gameID);
+
+    
 
     if (!post)
     {
@@ -88,7 +90,7 @@ app.post('/guess', async (req, res) =>
             error: "Fel spel ID eller så har din spel session gått ut!",
         });
     }
-    else if (post.guesses.length === 5)
+    else if (post.guesses.length == guessLimit)
     {
         res.status(403).json({
             data: false,
@@ -106,21 +108,33 @@ app.post('/guess', async (req, res) =>
         {
             const guessResult = checkGuess(playerGuess, answer)
             const winner = checkWinner(guessResult);
-
             const result = await addguess(gameID, guessResult, winner)
 
             post = await HighScore.findById(gameID);
 
             if (result.acknowledged)
             {
-                res.status(202).json({
-                    data: true,
-                    guessList: post.guesses,
-                    endTime: post.endTime,
-                })
+                if (post.guesses.length === guessLimit && !winner)
+                {
+                    res.status(201).json({
+                        data: false,
+                        guessList: post.guesses,
+                        title: "Spel är över!",
+                        error: `Rätt ord var: ${post.answer}`
+                    })
+                }
+                else 
+                {
+                    res.status(201).json({
+                        data: true,
+                        guessList: post.guesses,
+                        endTime: post.endTime,
+                    })
+                }
             }
             else
             {
+
                 res.status(406).json({
                     data: false,
                     title: "Error!",

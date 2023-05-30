@@ -32,10 +32,12 @@ export async function addguess(gameID, guessResult, winner)
     {
         let endtime = isWinner(winner);
 
-        const result = await HighScore.updateMany(
+        const result = await HighScore.updateOne(
             { _id: gameID },
-            { $push: { guesses: { word: guessResult } } },
-            { endTime: endtime }
+            {
+                $push: { guesses: { word: guessResult } },
+                $set: { endTime: endtime }
+            },
         );
 
         return result;
@@ -62,13 +64,12 @@ export async function addWinner(gameID, playerName)
 
 export async function getHighScore()
 {
-    return await HighScore.find({ endTime: { $ne: null } });
+    return await HighScore.find({ $and: [{ endTime: { $ne: null } }, { playerName: { $ne: null } }] });
 }
 
 export async function cleanDB()
 {
-    const conn = mongoose.connection;
-    conn.collection('highscores').deleteMany({
+    const result = await HighScore.deleteMany({
         "$and":
             [
                 { "endTime": null },
@@ -83,5 +84,8 @@ export async function cleanDB()
                     }
                 }
             ]
-    });
+    })
+
+    if (result.deletedCount > 0)
+        console.log("DB cleaning result: ", result)
 }
