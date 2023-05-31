@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import express from "express";
+import { engine } from 'express-handlebars';
 import wordList from "./components/wordList.js";
 import checkGuess from "./components/checkGuess.js";
 import checkWinner from "./components/checkWinner.js";
@@ -13,7 +14,66 @@ const guessLimit = 5;
 const app = express();
 app.use(express.json());
 
-app.post('/newgame', async (req, res) =>
+app.engine('handlebars', engine());
+app.set('view engine', 'handlebars');
+app.set('views', './views');
+
+app.use('/static', express.static('./static'));
+
+app.get('/', (req, res) =>
+{
+    res.render('index');
+});
+
+app.get('/about', (req, res) =>
+{
+    res.render('about');
+});
+
+app.get('/highscore', async (req, res) =>
+{
+    const result = await getHighScore();
+
+    const correctedResult = result.map(guess =>
+    {
+        let time = "";
+
+        if (guess.guesses.length == 1)
+            time = 0;
+        else 
+        {
+            const toDate = guess._id.toString().slice(0, 8);
+            const startTime = new Date(parseInt(toDate, 16) * 1000)
+            time = Math.round((guess.endTime.getTime() - startTime.getTime()) / 1000);
+        }
+
+        const myGuesses = guess.guesses.map(ges =>
+        {
+            const myWord = ges.word.map(wrd =>
+            {
+                return wrd.letter;
+            });
+
+            const wholeWord = myWord.join('');
+
+            return wholeWord;
+        });
+
+        return {
+            answer: guess.answer,
+            guesses: myGuesses,
+            time: time,
+            playerName: guess.playerName,
+            uniqueLetters: guess.uniqueLetters,
+            wordLength: guess.guesses[0].word.length
+        };
+
+    });
+
+    res.render('highscore', { correctedResult });
+});
+
+app.post('/api/newgame', async (req, res) =>
 {
     cleanDB();
 
@@ -71,7 +131,7 @@ app.post('/newgame', async (req, res) =>
 
 });
 
-app.post('/guess', async (req, res) =>
+app.post('/api/guess', async (req, res) =>
 {
     const gameID = req.body.gameID;
     const playerGuess = req.body.inputGuess;
@@ -161,7 +221,7 @@ app.post('/guess', async (req, res) =>
     }
 });
 
-app.post('/highscore', async (req, res) =>
+app.post('/api/highscore', async (req, res) =>
 {
     const gameID = req.body.gameID;
     const playerName = req.body.playerName;
@@ -201,49 +261,5 @@ app.post('/highscore', async (req, res) =>
     }
 });
 
-app.get('/highscore', async (req, res) =>
-{
-    const result = await getHighScore();
-
-    const correctedResult = result.map(guess =>
-    {
-        let time = "";
-
-        if (guess.guesses.length == 1)
-            time = 0;
-        else 
-        {
-            const toDate = guess._id.toString().slice(0, 8);
-            const startTime = new Date(parseInt(toDate, 16) * 1000)
-            time = Math.round((guess.endTime.getTime() - startTime.getTime()) / 1000);
-        }
-
-        const myGuesses = guess.guesses.map(ges =>
-        {
-            const myWord = ges.word.map(wrd =>
-            {
-                return wrd.letter;
-            });
-
-            const wholeWord = myWord.join('');
-            return wholeWord;
-        });
-
-
-        return {
-            answer: guess.answer,
-            guesses: myGuesses,
-            time: time,
-            playerName: guess.playerName,
-            uniqueLetters: guess.uniqueLetters,
-            wordLength: guess.guesses[0].word.length
-        };
-
-    });
-
-    res.status(200).json({
-        data: correctedResult,
-    })
-})
 
 export default app;

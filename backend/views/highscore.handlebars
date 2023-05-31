@@ -1,0 +1,15 @@
+<h1 class="title">HIGHSCORE</h1>
+<section class="game-box">
+	<ul class="highscore-box">
+		{{#each correctedResult}}
+			<ul class="user-ul">
+				<li><span>NAME:</span> {{this.playerName}}</li>
+				<li><span>TIME:</span> {{this.time}} SEKUNDER</li>
+				<li><span>UNIQUE LETTERS:</span> {{this.uniqueLetters}}</li>
+				<li><span>WORD LENGTH:</span> {{this.wordLength}}</li>
+				<li><span>ANSWER:</span> {{this.answer}}</li>
+				<li><span>GUESSES:</span> {{this.guesses}}</li>
+			</ul>
+		{{/each}}
+	</ul>
+</section>

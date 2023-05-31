@@ -35,7 +35,7 @@ export default function GameBox()
 
     async function sendGuess()
     {
-        const res = await fetch('http://localhost:5080/guess', {
+        const res = await fetch('http://localhost:5080/api/guess', {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -70,7 +70,7 @@ export default function GameBox()
 
     async function newGame()
     {
-        const res = await fetch('http://localhost:5080/newgame', {
+        const res = await fetch('http://localhost:5080/api/newgame', {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -95,7 +95,7 @@ export default function GameBox()
 
     async function sendHighscore(playerName)
     {
-        const res = await fetch('http://localhost:5080/highscore', {
+        const res = await fetch('http://localhost:5080/api/highscore', {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

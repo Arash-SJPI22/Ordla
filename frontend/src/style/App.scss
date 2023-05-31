@@ -16,3 +16,27 @@
 		}
 	}
 }
+
+.highscore-box {
+	list-style: none;
+	padding: 0 10px;
+	margin: 10px 0;
+
+	.user-ul {
+		border: 2px solid rgb(187, 114, 114);
+		border-radius: 10px;
+		box-shadow: 4px 2px;
+		padding: 5px 20px;
+		background-color: lightgreen;
+		list-style: none;
+		margin: 5px 0;
+
+		li {
+			font-weight: 200;
+
+			span {
+				font-weight: 700;
+			}
+		}
+	}
+}

@@ -1,8 +1,6 @@
 import '../style/modal.scss';
 import { useState } from 'react';
 
-
-
 export default function Modal({ hidden, handleModal, title, msg, winner = false, handleHighscore })
 {
     const [playerName, setPlayerName] = useState('');
