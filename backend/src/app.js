@@ -15,14 +15,12 @@ app.use(express.json());
 
 app.post('/newgame', async (req, res) =>
 {
-
     cleanDB();
 
     let wordLength = req.body.wordLength;
     let uniqueWord = req.body.uniqueWord;
     let playerGuess = req.body.inputGuess;
 
-    //ev skicka tillbaka en random 5 bokstävigt ord om det är fel på inputen eller ord inte matchar kriterierna
     if (
         ((wordLength >= 3) && (wordLength <= 27))
         &&
@@ -80,7 +78,10 @@ app.post('/guess', async (req, res) =>
 
     let post = await HighScore.findById(gameID);
 
-    
+    if (!post._id)
+    {
+        res.status(400).end();
+    }
 
     if (!post)
     {
@@ -134,7 +135,6 @@ app.post('/guess', async (req, res) =>
             }
             else
             {
-
                 res.status(406).json({
                     data: false,
                     title: "Error!",
@@ -184,13 +184,66 @@ app.post('/highscore', async (req, res) =>
             error: "Vinnaren har redan skrivit in sitt namn!"
         })
     }
-    else 
+    else if (post && post.endTime && !post.playerName)
     {
         const result = await addWinner(gameID, playerName);
         res.status(201).json({
             data: true,
         })
     }
+    else 
+    {
+        res.status(400).json({
+            data: false,
+            title: "Fel!",
+            error: "Fusk försök!"
+        })
+    }
 });
+
+app.get('/highscore', async (req, res) =>
+{
+    const result = await getHighScore();
+
+    const correctedResult = result.map(guess =>
+    {
+        let time = "";
+
+        if (guess.guesses.length == 1)
+            time = 0;
+        else 
+        {
+            const toDate = guess._id.toString().slice(0, 8);
+            const startTime = new Date(parseInt(toDate, 16) * 1000)
+            time = Math.round((guess.endTime.getTime() - startTime.getTime()) / 1000);
+        }
+
+        const myGuesses = guess.guesses.map(ges =>
+        {
+            const myWord = ges.word.map(wrd =>
+            {
+                return wrd.letter;
+            });
+
+            const wholeWord = myWord.join('');
+            return wholeWord;
+        });
+
+
+        return {
+            answer: guess.answer,
+            guesses: myGuesses,
+            time: time,
+            playerName: guess.playerName,
+            uniqueLetters: guess.uniqueLetters,
+            wordLength: guess.guesses[0].word.length
+        };
+
+    });
+
+    res.status(200).json({
+        data: correctedResult,
+    })
+})
 
 export default app;
